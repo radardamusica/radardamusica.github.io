@@ -48,3 +48,22 @@ create or replace view public.resumo_fas as
   select count(distinct user_id) as fas from public.notas;
 
 grant select on public.media_notas, public.contagem_lista, public.resumo_fas to anon, authenticated;
+
+-- Sugestões de artistas para os próximos radares (só a dona do projeto lê, pelo painel do Supabase)
+create table if not exists public.sugestoes (
+  id bigint generated always as identity primary key,
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  artista text not null check (char_length(trim(artista)) between 2 and 80),
+  motivo text check (char_length(motivo) <= 280),
+  criado_em timestamptz not null default now()
+);
+
+grant insert on public.sugestoes to authenticated;
+alter table public.sugestoes enable row level security;
+create policy "sugestoes: enviar as minhas" on public.sugestoes for insert to authenticated with check (auth.uid() = user_id);
+
+-- Para consultar no SQL Editor: artistas mais pedidos
+create or replace view public.sugestoes_ranking as
+  select initcap(lower(trim(artista))) as artista, count(*) as pedidos, max(criado_em) as ultimo_pedido
+  from public.sugestoes group by lower(trim(artista)) , initcap(lower(trim(artista))) order by pedidos desc;
+revoke all on public.sugestoes_ranking from anon, authenticated;
