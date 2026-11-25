@@ -20,6 +20,8 @@ create table if not exists public.lista (
   primary key (user_id, item_id)
 );
 
+grant select, insert, update, delete on public.notas, public.lista to authenticated;
+
 alter table public.notas enable row level security;
 alter table public.lista enable row level security;
 
