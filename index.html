@@ -116,6 +116,12 @@ details.done summary{cursor:pointer;font:400 clamp(20px,2.6vw,24px)/1.2 Righteou
 .lrow{display:flex;flex-wrap:wrap;gap:8px}
 .lrow input{flex:1 1 220px;font:16px "Work Sans",sans-serif;min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 .lrow button{border:0;cursor:pointer}
+.sug{margin-top:40px}
+.sug h2{margin-top:0}
+.sug form{display:flex;flex-direction:column;gap:6px;max-width:640px}
+.campo{font:16px "Work Sans",sans-serif;min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin-bottom:8px}
+.campo:focus-visible,.nota:focus-visible{outline:3px solid var(--sun);outline-offset:1px}
+.sugbtn{border:0;cursor:pointer;align-self:flex-start;margin-top:8px}
 .foot a{color:inherit}
 </style>
 </head>
@@ -177,6 +183,18 @@ details.done summary{cursor:pointer;font:400 clamp(20px,2.6vw,24px)/1.2 Righteou
       <button class="chip" type="button" data-cat="Imprensa" aria-pressed="false">Imprensa</button>
     </div>
     <div class="rows" id="todos"><p class="empty">Carregando…</p></div>
+    <section class="card sug" id="sugira">
+      <h2>Qual artista você quer ver no próximo radar?</h2>
+      <p class="sub">Conte quem merece um guia como este e, se quiser, por quê: um aniversário, os 50 anos de um disco, uma turnê. Só a equipe do Radar lê as sugestões.</p>
+      <form id="sugform">
+        <label for="sug-artista"><b>Artista</b></label>
+        <input id="sug-artista" class="campo" type="text" required minlength="2" maxlength="80" autocomplete="off" placeholder="Ex.: Fagner, Elis Regina, Ednardo">
+        <label for="sug-motivo"><b>Por quê?</b> <span class="sub">(opcional)</span></label>
+        <textarea id="sug-motivo" class="nota" rows="3" maxlength="280" placeholder="Ex.: o disco tal faz 50 anos em 2027"></textarea>
+        <button class="lk sugbtn" type="submit">Enviar sugestão</button>
+        <p class="sub" id="sug-msg" role="status"></p>
+      </form>
+    </section>
     <p class="foot" id="atualizado">Lista atualizada toda semana a partir da imprensa. Os cartazes são ilustrações próprias.</p>
   </section>
 
@@ -477,6 +495,20 @@ details.done summary{cursor:pointer;font:400 clamp(20px,2.6vw,24px)/1.2 Righteou
     $('loginmsg').textContent = 'Enviando…';
     const { error } = await S.sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
     $('loginmsg').textContent = error ? 'Não deu para enviar agora. Tente de novo em alguns minutos.' : 'Pronto. Abra o e-mail e toque no link para entrar.';
+  });
+
+  $('sugform').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = $('sug-msg');
+    if (!canWrite()) { msg.textContent = 'Para sugerir, entre com seu e-mail no botão Entrar, no topo.'; pedirLogin(); return; }
+    const artista = $('sug-artista').value.trim(), motivo = $('sug-motivo').value.trim();
+    if (artista.length < 2) { msg.textContent = 'Escreva o nome do artista.'; return; }
+    const btn = e.submitter || e.target.querySelector('button'); btn.disabled = true; msg.textContent = 'Enviando…';
+    const { error } = await S.sb.from('sugestoes').insert({ artista, motivo: motivo || null });
+    btn.disabled = false;
+    if (error) { msg.textContent = 'Não foi enviada. Confira sua conexão e tente de novo.'; return; }
+    $('sug-artista').value = ''; $('sug-motivo').value = '';
+    msg.textContent = `Valeu! Sugestão de ${artista} recebida.`;
   });
 
   render();
