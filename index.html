@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar Belchior 80</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday, para fãs: caloroso, de disco de 1976
+   IDEA contracapa de LP virando guia: descobrir, minha lista com check, calendário por data (lógica de app de acompanhamento)
+   PICTURE sol do sertão feito de sulcos de vinil na faixa vermelha; cartazes desenhados por tipo
+   COLOUR terra vermelha #a8321b em faixa cheia, sol #f6b52e, tinta quase preta, branco; à noite o mesmo em tons escuros
+   TYPE Righteous (letreiro anos 70) + Work Sans
+   LAYOUT abas no topo; faixa vermelha com título e sol; listas em colunas que viram uma no celular */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#17100c);--ink:light-dark(#1d1410,#f6ece4);--muted:light-dark(#6b5a50,#bfae9f);--line:light-dark(#eadfd6,#3a2a22);--panel:light-dark(#fbf6f2,#21160f);--panel2:light-dark(#f3e9e1,#2c1f17);--earth:light-dark(#a8321b,#c2481f);--earth2:light-dark(#7d2312,#561709);--sun:#f6b52e;--ok:light-dark(#2f7a3d,#7fd08c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 "Work Sans",system-ui,sans-serif;overflow-x:clip}
+a{color:inherit}
+button{font:inherit;color:inherit}
+.app{max-width:1240px;margin:0 auto;padding:0 max(5vw,16px) 64px}
+.top{padding:24px 0 6px}
+.top h1{font:400 clamp(30px,5vw,44px)/1.05 Righteous,sans-serif;margin:0}
+.view[hidden]{display:none}
+h2{font:400 clamp(22px,3vw,28px)/1.15 Righteous,sans-serif;margin:34px 0 12px}
+h2.date{font:700 clamp(18px,2.6vw,22px)/1.2 "Work Sans",sans-serif;margin:26px 0 10px;color:var(--earth)}
+.sub{color:var(--muted);font-size:15px}
+.empty{color:var(--muted);margin:8px 0}
+.nav{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);padding:0 max(5vw,16px)}
+.nav .in{max-width:1240px;margin:0 auto;display:flex;gap:4px;overflow-x:auto}
+.tabbtn{display:flex;align-items:center;gap:8px;min-height:52px;padding:0 14px;border-bottom:3px solid transparent;color:var(--muted);font-weight:600;font-size:15px;text-decoration:none;white-space:nowrap;position:relative}
+.tabbtn svg{width:20px;height:20px}
+.tabbtn[aria-current=page]{color:var(--ink);border-bottom-color:var(--earth)}
+.tabbtn .badge{background:var(--earth);color:#fff;border-radius:999px;font-size:12px;line-height:20px;padding:0 7px}
+.banner{margin:0 calc(50% - 50vw);background:var(--earth);color:#fff4e8;padding:clamp(24px,4vw,48px) max(5vw,16px)}
+.banner .in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:center}
+.banner b{font:400 clamp(34px,5.2vw,58px)/1.05 Righteous,sans-serif;display:block;margin-bottom:14px;text-wrap:balance}
+.banner p{margin:0 0 18px;font-size:17px;max-width:46ch}
+.figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:460px}
+.fig-n{font:400 clamp(30px,4vw,44px)/1 Righteous,sans-serif;color:#ffd877}
+.fig-l{font-size:14px;opacity:.9}
+.sunbox{border-radius:18px;overflow:hidden;background:var(--earth2);aspect-ratio:1/.72}
+.sunbox svg{width:100%;height:100%;display:block}
+.rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
+.rail>*{flex:none;scroll-snap-align:start}
+.pbtn{border:0;background:none;padding:0;cursor:pointer;width:140px;text-align:left}
+.pbtn .t{display:block;margin-top:6px;font-size:14px;font-weight:600;line-height:1.25}
+.poster{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:2/3;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:8px}
+.poster::before{content:"";position:absolute;width:120%;aspect-ratio:1;left:-10%;top:18%;border-radius:50%;background:repeating-radial-gradient(circle,rgba(255,255,255,.16) 0 1px,transparent 1px 6px),radial-gradient(circle,var(--c2) 0 40%,transparent 41%);opacity:.9}
+.poster .pt{position:relative;font:400 13px/1.1 Righteous,sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.6);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.poster .pk{position:absolute;top:6px;left:6px;font:700 10px/1 "Work Sans",sans-serif;background:rgba(0,0,0,.65);padding:4px 6px;border-radius:5px}
+.poster .pk.sun{background:var(--sun);color:#2b0a04}
+.poster.big{width:130px;flex:none}
+.poster.big .pt{font-size:15px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:12px}
+.row{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px}
+.row .poster{width:72px;padding:5px}
+.row .poster .pt{font-size:10px;-webkit-line-clamp:3}
+.row .poster .pk{font-size:8px;padding:3px 4px}
+.ri{border:0;background:none;padding:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.ri b{font-size:17px;line-height:1.25}
+.ri .l1{font-weight:600;font-size:14px;color:var(--earth)}
+.circle{width:50px;height:50px;border-radius:50%;border:2.5px solid var(--earth);background:none;color:var(--earth);display:grid;place-items:center;cursor:pointer;flex:none}
+.circle svg{width:24px;height:24px}
+.circle[aria-pressed=true]{background:var(--sun);border-color:var(--sun);color:#2b0a04}
+.circle:disabled{opacity:.35;cursor:default}
+.circle:focus-visible,.tabbtn:focus-visible,.chip:focus-visible,.pbtn:focus-visible,.ri:focus-visible,.lk:focus-visible,.bigbtn:focus-visible,.star:focus-visible,.back:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.row.hl{outline:3px solid var(--sun);outline-offset:2px}
+.bar{height:8px;border-radius:4px;background:var(--line);margin-top:6px;overflow:hidden;max-width:260px}
+.bar i{display:block;height:100%;background:var(--sun)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.chip{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-weight:500;font-size:15px}
+.chip[aria-pressed=true]{background:var(--earth);border-color:var(--earth);color:#fff}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,4vw,48px)}
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.rank .pos{font:400 22px/1 Righteous,sans-serif;color:var(--earth)}
+.rank .sc{font-weight:600;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.rank .sc small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.back{border:0;background:none;padding:10px 0;cursor:pointer;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px;min-height:44px}
+.dhead{display:flex;gap:18px;align-items:flex-end;margin-top:6px}
+.dhead h1{font:400 clamp(26px,5vw,40px)/1.08 Righteous,sans-serif;margin:0 0 10px}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(16px,3vw,32px);align-items:start}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:13px;padding:2px 10px;border-radius:999px;border:1px solid var(--line)}
+.tag.a{background:var(--sun);border-color:var(--sun);color:#2b0a04;font-weight:700}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px}
+.where{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margin:0}
+.where dt{color:var(--muted)}.where dd{margin:0}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.lk{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:22px;background:var(--earth);color:#fff;font-weight:600;font-size:15px;text-decoration:none}
+.lk:hover{background:var(--earth2)}
+.bigbtn{width:100%;min-height:52px;border-radius:26px;border:2px solid var(--earth);background:none;color:var(--earth);font-weight:700;font-size:16px;cursor:pointer;margin-top:14px}
+.bigbtn[aria-pressed=true]{background:var(--sun);border-color:var(--sun);color:#2b0a04}
+.bigbtn.sec{border-color:var(--line);color:var(--ink)}
+.bigbtn.sec[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
+.bigbtn:disabled{opacity:.5;cursor:default}
+.stars{display:flex;margin-top:6px}
+.star{width:46px;height:48px;border:0;background:none;padding:0;cursor:pointer;color:var(--line);font-size:34px;line-height:48px}
+.star.on{color:var(--sun)}
+.star:disabled{cursor:default}
+.nota{font:16px/1.4 "Work Sans",sans-serif;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical;margin-top:6px}
+.msg{background:var(--panel);border:1px solid var(--sun);border-radius:10px;padding:10px 14px;font-size:14px;margin:14px 0 0}
+details.done{margin-top:28px}
+details.done summary{cursor:pointer;font:400 clamp(20px,2.6vw,24px)/1.2 Righteous,sans-serif;padding:8px 0}
+.foot{color:var(--muted);font-size:14px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+@media(max-width:760px){.banner .in,.two,.dgrid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:420px){.row{grid-template-columns:60px minmax(0,1fr) auto;gap:10px}.row .poster{width:60px}.ri b{font-size:16px}.circle{width:46px;height:46px}.figs{gap:8px}.tabbtn{padding:0 10px}}
+@media(prefers-reduced-motion:no-preference){#grooves{animation:spin 60s linear infinite;transform-origin:150px 150px}@keyframes spin{to{transform:rotate(360deg)}}}
+.sp{flex:1}
+.acc{border:0;background:none;cursor:pointer}
+.loginbox{background:var(--panel);border-bottom:1px solid var(--line);padding:16px max(5vw,16px)}
+.loginbox .in{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.lrow{display:flex;flex-wrap:wrap;gap:8px}
+.lrow input{flex:1 1 220px;font:16px "Work Sans",sans-serif;min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.lrow button{border:0;cursor:pointer}
+.foot a{color:inherit}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Seções"><div class="in">
+  <a class="tabbtn" href="#descobrir" data-v="descobrir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>Descobrir</a>
+  <a class="tabbtn" href="#lista" data-v="lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Minha lista<span class="badge" id="n-mine" hidden>0</span></a>
+  <a class="tabbtn" href="#calendario" data-v="calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01" stroke-width="3" stroke-linecap="round"/></svg>Calendário</a>
+<span class="sp"></span><button class="tabbtn acc" type="button" id="conta">Entrar</button></div></nav>
+<div class="loginbox" id="loginbox" hidden>
+  <form class="in" id="loginform">
+    <label for="email"><b>Entre com seu e-mail</b> para dar notas e montar sua lista. Mandamos um link de acesso, sem senha.</label>
+    <div class="lrow"><input id="email" type="email" required autocomplete="email" placeholder="seu@email.com"><button class="lk" type="submit">Receber link</button></div>
+    <p class="sub" id="loginmsg"></p>
+  </form>
+</div>
+<div class="app">
+  <p class="msg" id="msg" hidden></p>
+
+  <section class="view" id="descobrir">
+    <div class="banner">
+      <div class="in">
+        <div>
+          <b>Belchior 80 anos, Alucinação 50</b>
+          <p>Tudo o que saiu e o que vem por aí para os 80 anos de nascimento (26 de outubro de 2026) e os 50 anos do disco de 1976. Guarde na sua lista o que quer ver, ir ou ter, e dê sua nota.</p>
+          <div class="figs">
+            <div><div class="fig-n" id="n-total">0</div><div class="fig-l">lançamentos</div></div>
+            <div><div class="fig-n" id="n-anun">0</div><div class="fig-l">ainda por vir</div></div>
+            <div><div class="fig-n" id="n-votos">0</div><div class="fig-l">fãs avaliaram</div></div>
+          </div>
+        </div>
+        <div class="sunbox"><svg viewBox="0 0 300 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5e170a"/><stop offset="1" stop-color="#c2481f"/></linearGradient><radialGradient id="dc" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f29a1f"/></radialGradient><clipPath id="ab"><rect width="300" height="150"/></clipPath></defs>
+        <rect width="300" height="220" fill="url(#sk)"/>
+        <g clip-path="url(#ab)"><circle cx="150" cy="150" r="95" fill="url(#dc)"/><g id="grooves" fill="none" stroke="#c9761a" stroke-opacity=".55"></g><circle cx="150" cy="150" r="26" fill="#a8321b"/></g>
+        <path d="M0 150 C60 144 100 154 150 148 C205 142 240 152 300 146 L300 220 L0 220Z" fill="#7d2312"/>
+        <path d="M141 150 L159 150 L210 220 L90 220Z" fill="#3e0f06"/>
+        <path d="M150 156 L150 166 M150 178 L151 192 M152 204 L153 218" stroke="#f6b52e" stroke-width="3" stroke-linecap="round"/>
+        <path d="M236 160 C235 128 238 104 241 88 L244 88 C242 106 240 128 242 160Z" fill="#2b0a04"/><g id="fronds" transform="translate(242 88)" fill="#2b0a04"></g>
+      </svg></div>
+      </div>
+    </div>
+
+    <h2>Em breve</h2>
+    <div class="rail" id="rail-breve"></div>
+
+    <h2>Ranking dos fãs</h2>
+    <p class="sub" id="rank-empty">Ainda não há votos. Dê estrelas na página de cada lançamento e o ranking aparece aqui.</p>
+    <ol class="rank" id="rank-list" hidden></ol>
+
+    <h2>Todos os lançamentos</h2>
+    <div class="chips" id="cats">
+      <button class="chip" type="button" data-cat="" aria-pressed="true">Tudo</button>
+      <button class="chip" type="button" data-cat="Audiovisual" aria-pressed="false">Filmes e séries</button>
+      <button class="chip" type="button" data-cat="Show e turnê" aria-pressed="false">Shows</button>
+      <button class="chip" type="button" data-cat="Livro" aria-pressed="false">Livros</button>
+      <button class="chip" type="button" data-cat="Disco e vinil" aria-pressed="false">Discos</button>
+      <button class="chip" type="button" data-cat="Exposição e evento" aria-pressed="false">Eventos</button>
+      <button class="chip" type="button" data-cat="Imprensa" aria-pressed="false">Imprensa</button>
+    </div>
+    <div class="rows" id="todos"><p class="empty">Carregando…</p></div>
+    <p class="foot" id="atualizado">Lista atualizada toda semana a partir da imprensa. Os cartazes são ilustrações próprias.</p>
+  </section>
+
+  <section class="view" id="lista" hidden>
+    <div class="top"><h1>Minha lista</h1></div>
+    <h2>Próximo</h2>
+    <p class="sub">Já está disponível. Toque no círculo quando tiver visto, ido ou comprado.</p>
+    <div class="rows" id="l-agora"></div>
+    <h2>Em breve</h2>
+    <div class="rail" id="l-breve"></div>
+    <details class="done" id="l-done-box"><summary>Já vi, já fui, já tenho (<span id="n-done">0</span>)</summary><div class="rows" id="l-done"></div></details>
+  </section>
+
+  <section class="view" id="calendario" hidden>
+    <div class="top"><h1>Calendário</h1></div>
+    <div class="chips" id="cal-f">
+      <button class="chip" type="button" data-f="tudo" aria-pressed="true">Tudo</button>
+      <button class="chip" type="button" data-f="minha" aria-pressed="false">Só minha lista</button>
+    </div>
+    <div id="cal"></div>
+  </section>
+
+  <section class="view" id="detalhe" hidden>
+    <button class="back" type="button" id="voltar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Voltar</button>
+    <div id="det"></div>
+  </section>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+{
+  const NS = 'http://www.w3.org/2000/svg';
+  for (let r = 32; r < 94; r += 6) { const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', 150); c.setAttribute('cy', 150); c.setAttribute('r', r); document.getElementById('grooves').append(c); }
+  for (let i = 0; i < 9; i++) { const p = document.createElementNS(NS, 'path'); p.setAttribute('d', 'M0 0 C12 -5 25 -3 37 5 C25 1 12 1 0 2Z'); p.setAttribute('transform', `rotate(${-80 + i * 20})`); document.getElementById('fronds').append(p); }
+
+  const S = { pub: { medias: {}, quero: {}, fas: 0 }, sb: null, user: null, itens: [], votos: {}, meus: {}, quero: {}, meusQ: {}, priv: {}, cat: '', calF: 'tudo', db: null, uid: null, pode: null, fila: Promise.resolve(), filaQ: Promise.resolve(), filaP: Promise.resolve(), destaque: null, voltar: [] };
+  const ACAO = { 'Audiovisual': 'ver', 'Show e turnê': 'ir', 'Exposição e evento': 'ir', 'Livro': 'ter', 'Disco e vinil': 'ter', 'Imprensa': 'ler' };
+  const QUERO = { ver: 'Quero ver', ir: 'Quero ir', ter: 'Quero', ler: 'Quero ler' };
+  const FEITO = { ver: 'Já vi', ir: 'Já fui', ter: 'Já tenho', ler: 'Já li' };
+  const COR = { 'Audiovisual': ['#1d2350', '#f6b52e'], 'Show e turnê': ['#7a1f10', '#ffd877'], 'Livro': ['#16423f', '#e9c46a'], 'Disco e vinil': ['#141414', '#f29a1f'], 'Exposição e evento': ['#4a1d48', '#f08a4b'], 'Imprensa': ['#2c2c2c', '#c9b8a6'] };
+  const acao = (r) => ACAO[r.categoria] || 'ter';
+  const passou = (r) => acao(r) === 'ir' && r.status === 'Lançado';
+  const $ = (id) => document.getElementById(id);
+  const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+  const safe = (u) => (typeof u === 'string' && /^https:\/\//.test(u)) ? u : null;
+  const fmt = (n) => n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const slug = (id) => String(id).replace(/[^a-z0-9-]/gi, '');
+  const byId = (id) => S.itens.find((r) => slug(r.id) === id);
+  const exato = (r) => /^\d{2}\/\d{2}\/\d{4}$/.test(r.data_texto || '') || /^\d{2}\/\d{2}\/\d{4}$/.test((r.data_texto || '').split(' ')[0]);
+  const dias = (r) => { if (!r.data) return null; const t = new Date(); const h = Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()); const [y, m, d] = r.data.split('-').map(Number); return Math.round((Date.UTC(y, m - 1, d) - h) / 864e5); };
+  const futuro = (r) => r.status === 'Anunciado';
+  function selo(r) {
+    if (r.status === 'Em cartaz') return ['Em cartaz', true];
+    if (futuro(r)) { const n = dias(r); if (n != null && n >= 0 && exato(r)) return [n === 0 ? 'Hoje' : n === 1 ? 'Amanhã' : `Faltam ${n} dias`, true]; return ['Em breve', true]; }
+    return [r.categoria === 'Audiovisual' ? 'Disponível' : passou(r) ? 'Já foi' : 'Já saiu', false];
+  }
+
+  function poster(r, cls) {
+    const p = el('div', 'poster' + (cls ? ' ' + cls : ''));
+    const [a, b] = COR[r.categoria] || COR['Imprensa'];
+    p.style.background = `linear-gradient(160deg, ${a}, #0d0a09 120%)`; p.style.setProperty('--c2', b);
+    const [t, quente] = selo(r);
+    p.append(el('span', 'pk' + (quente ? ' sun' : ''), t), el('span', 'pt', r.titulo));
+    p.setAttribute('aria-hidden', 'true');
+    return p;
+  }
+  function stats(id) { const m = S.pub.medias[id]; return m ? { media: m.media, n: m.n } : { media: 0, n: 0 }; }
+  function nQuero(id) { return S.pub.quero[id] || 0; }
+  const ir = (r) => { S.voltar.push([location.hash || '#descobrir', window.scrollY]); location.hash = '#item-' + slug(r.id); };
+  const canWrite = () => !!(S.sb && S.user);
+
+  const ICON_ADD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+  const ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+  function row(r, modo) {
+    const d = el('div', 'row'); d.id = (modo === 'lista' ? 'lr-' : 'r-') + slug(r.id) + (modo === 'cal' ? '-c' : '');
+    if (S.destaque === slug(r.id) && modo === 'lista') d.classList.add('hl');
+    const info = el('button', 'ri'); info.type = 'button'; info.addEventListener('click', () => ir(r));
+    info.append(el('b', null, r.titulo));
+    if (modo === 'cal') info.append(el('span', 'l1', [r.categoria, r.cidade].filter(Boolean).join(', ')), el('span', 'sub', r.onde || ''));
+    else info.append(el('span', 'l1', r.data_texto || ''), el('span', 'sub', r.onde || r.categoria));
+    if (modo === 'lista' && S.priv[r.id]?.nota) info.append(el('span', 'sub', 'Nota: ' + S.priv[r.id].nota));
+    d.append(poster(r), info);
+    if (modo === 'lista') {
+      const feito = !!S.priv[r.id]?.feito;
+      const c = el('button', 'circle'); c.type = 'button'; c.innerHTML = ICON_OK;
+      c.setAttribute('aria-pressed', String(feito)); c.setAttribute('aria-label', (feito ? 'Desmarcar ' : 'Marcar ') + FEITO[acao(r)].toLowerCase() + ': ' + r.titulo);
+      c.addEventListener('click', () => salvarPriv(r.id, { feito: !feito }));
+      d.append(c);
+    } else if (!passou(r)) {
+      const on = !!S.meusQ[r.id];
+      const c = el('button', 'circle add'); c.type = 'button'; c.innerHTML = on ? ICON_OK : ICON_ADD;
+      c.setAttribute('aria-pressed', String(on)); c.setAttribute('aria-label', (on ? 'Na sua lista: ' : QUERO[acao(r)] + ': ') + r.titulo);
+      c.addEventListener('click', () => querer(r.id, !on, true));
+      d.append(c);
+    } else d.append(el('span'));
+    return d;
+  }
+  function pbtn(r) {
+    const b = el('button', 'pbtn'); b.type = 'button'; b.addEventListener('click', () => ir(r));
+    b.append(poster(r), el('span', 't', r.titulo)); return b;
+  }
+  const porData = (a, b) => (a.data || '9999').localeCompare(b.data || '9999');
+
+  function vDescobrir() {
+    $('n-total').textContent = S.itens.length;
+    $('n-anun').textContent = S.itens.filter(futuro).length;
+    $('n-votos').textContent = S.pub.fas;
+    const rail = $('rail-breve'); rail.replaceChildren();
+    const br = S.itens.filter((r) => futuro(r) || r.status === 'Em cartaz').sort(porData);
+    br.forEach((r) => rail.append(pbtn(r)));
+    if (!br.length) rail.append(el('p', 'empty', 'Nenhum anúncio pendente agora.'));
+    const ul = $('rank-list'); ul.replaceChildren();
+    const rk = S.itens.map((r) => ({ r, ...stats(r.id) })).filter((x) => x.n).sort((a, b) => b.media - a.media || b.n - a.n).slice(0, 5);
+    ul.hidden = !rk.length; $('rank-empty').hidden = !!rk.length;
+    rk.forEach((x, i) => {
+      const li = el('li'); const mid = el('button', 'ri'); mid.type = 'button'; mid.addEventListener('click', () => ir(x.r));
+      mid.append(el('b', null, x.r.titulo)); const bar = el('div', 'bar'); const f = el('i'); f.style.width = (x.media / 5 * 100) + '%'; bar.append(f); mid.append(bar);
+      const sc = el('span', 'sc', fmt(x.media) + ' ★'); sc.append(el('small', null, x.n + (x.n === 1 ? ' voto' : ' votos')));
+      li.append(el('span', 'pos', String(i + 1)), mid, sc); ul.append(li);
+    });
+    const box = $('todos'); box.replaceChildren();
+    const rows = S.itens.filter((r) => !S.cat || r.categoria === S.cat).sort((a, b) => (b.data || '0000').localeCompare(a.data || '0000'));
+    rows.forEach((r) => box.append(row(r, 'todos')));
+    if (!rows.length) box.append(el('p', 'empty', 'Nada nesta categoria por enquanto.'));
+  }
+
+  function vLista() {
+    const mine = S.itens.filter((r) => S.meusQ[r.id]);
+    const pend = mine.filter((r) => !S.priv[r.id]?.feito), done = mine.filter((r) => S.priv[r.id]?.feito);
+    const agora = pend.filter((r) => !futuro(r)).sort(porData), breve = pend.filter(futuro).sort(porData);
+    const a = $('l-agora'); a.replaceChildren();
+    agora.forEach((r) => a.append(row(r, 'lista')));
+    if (!agora.length) a.append(el('p', 'empty', mine.length ? 'Nada disponível na fila agora.' : (S.user ? 'Sua lista está vazia. Em Descobrir, toque no + de um lançamento para trazer para cá.' : 'Entre com seu e-mail (botão Entrar, no topo) para montar a sua lista.')));
+    const b = $('l-breve'); b.replaceChildren();
+    breve.forEach((r) => b.append(pbtn(r)));
+    if (!breve.length) b.append(el('p', 'empty', 'Nenhum anúncio na sua lista.'));
+    const dn = $('l-done'); dn.replaceChildren(); done.sort(porData).forEach((r) => dn.append(row(r, 'lista')));
+    $('n-done').textContent = done.length; $('l-done-box').hidden = !done.length;
+    const n = $('n-mine'); n.textContent = pend.length; n.hidden = !pend.length;
+    if (S.destaque) { const t = document.getElementById('lr-' + S.destaque); if (t) requestAnimationFrame(() => t.scrollIntoView({ block: 'center' })); setTimeout(() => { S.destaque = null; }, 2500); }
+  }
+
+  function vCal() {
+    const box = $('cal'); box.replaceChildren();
+    const its = S.itens.filter((r) => S.calF === 'tudo' || S.meusQ[r.id]);
+    if (!its.length) { box.append(el('p', 'empty', 'Nada da sua lista com data ainda.')); return; }
+    const vem = its.filter((r) => r.data && (futuro(r) || r.status === 'Em cartaz' || (dias(r) ?? -1) >= 0)).sort(porData);
+    const foi = its.filter((r) => r.data && !vem.includes(r)).sort((a, b) => b.data.localeCompare(a.data));
+    const sem = its.filter((r) => !r.data);
+    const grupo = (titulo, lista, cls) => {
+      let atual = null, cont = null;
+      if (titulo) box.append(el('h2', null, titulo));
+      for (const r of lista) {
+        const [y, m, d] = r.data.split('-').map(Number); const dt = new Date(Date.UTC(y, m - 1, d));
+        const cab = exato(r) ? dt.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : dt.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' }) + (/previs/i.test(r.data_texto || '') ? ' (previsão)' : '');
+        const txt = cab.charAt(0).toUpperCase() + cab.slice(1);
+        if (txt !== atual) { box.append(el('h2', 'date', txt)); atual = txt; cont = el('div', 'rows'); box.append(cont); }
+        cont.append(row(r, 'cal'));
+      }
+    };
+    if (vem.length) grupo('', vem); else box.append(el('p', 'empty', 'Nenhuma data marcada pela frente.'));
+    if (foi.length) { box.append(el('h2', null, 'Já passou')); grupo('', foi); }
+    if (sem.length) { box.append(el('h2', 'date', 'Sem data')); const c = el('div', 'rows'); sem.forEach((r) => c.append(row(r, 'cal'))); box.append(c); }
+  }
+
+  function vDet(id) {
+    const box = $('det');
+    if (box.contains(document.activeElement) && document.activeElement.tagName === 'TEXTAREA') return;
+    box.replaceChildren();
+    const r = byId(id);
+    if (!r) { box.append(el('p', 'empty', S.itens.length ? 'Lançamento não encontrado.' : 'Carregando…')); return; }
+    const g = acao(r);
+    const h = el('div', 'dhead'); h.append(poster(r, 'big'));
+    const ht = el('div'); ht.append(el('h1', null, r.titulo));
+    const tags = el('div', 'tags'); const [t, q] = selo(r);
+    tags.append(el('span', 'tag' + (q ? ' a' : ''), t), el('span', 'tag', r.categoria), el('span', 'tag', r.marco === 'Os dois' ? '80 anos e Alucinação 50' : r.marco));
+    ht.append(tags); h.append(ht); box.append(h);
+    const grid = el('div', 'dgrid'); const colA = el('div'), colB = el('div'); grid.append(colA, colB); box.append(grid);
+    colA.append(el('p', null, r.resumo));
+    const c1 = el('div', 'card'); const dl = el('dl', 'where');
+    const add = (k, v) => { if (v) dl.append(el('dt', null, k), el('dd', null, v)); };
+    add({ ver: 'Onde ver', ir: 'Onde', ter: 'Onde achar', ler: 'Onde ler' }[g], r.onde); add('Quando', r.quando); add('Data', r.data_texto); add('Cidade', r.cidade); add('Quem', r.quem);
+    c1.append(dl);
+    const lk = el('div', 'links');
+    for (const l of (Array.isArray(r.links) ? r.links : [])) { const u = safe(l && l.url); if (!u) continue; const a = el('a', 'lk', l.rotulo || 'Abrir'); a.href = u; a.target = '_blank'; a.rel = 'noopener'; lk.append(a); }
+    if (lk.children.length) c1.append(lk);
+    colA.append(c1);
+    if (!passou(r)) {
+      const on = !!S.meusQ[r.id];
+      const b = el('button', 'bigbtn', on ? '✓ Na minha lista' : QUERO[g]); b.type = 'button'; b.setAttribute('aria-pressed', String(on));
+      b.addEventListener('click', () => querer(r.id, !on, true)); colB.append(b);
+      const n = nQuero(r.id); if (n) colB.append(el('p', 'sub', `${n} ${n === 1 ? 'fã marcou' : 'fãs marcaram'} ${QUERO[g].toLowerCase()}`));
+    }
+    if (S.meusQ[r.id]) {
+      const feito = !!S.priv[r.id]?.feito;
+      const f = el('button', 'bigbtn sec', (feito ? '✓ ' : '') + FEITO[g]); f.type = 'button'; f.setAttribute('aria-pressed', String(feito));
+      f.addEventListener('click', () => salvarPriv(r.id, { feito: !feito })); colB.append(f);
+      const c2 = el('div', 'card'); const lab = el('label', 'sub', 'Minha anotação (só você vê)'); lab.htmlFor = 'nota';
+      const ta = el('textarea', 'nota'); ta.id = 'nota'; ta.rows = 3; ta.maxLength = 280; ta.value = S.priv[r.id]?.nota || '';
+      ta.placeholder = g === 'ir' ? 'Ex.: comprar meia-entrada, ir com quem' : g === 'ver' ? 'Ex.: ver no fim de semana' : 'Ex.: dar de presente';
+      ta.addEventListener('change', () => salvarPriv(r.id, { nota: ta.value.trim() }));
+      c2.append(lab, ta); colB.append(c2);
+    }
+    const c3 = el('div', 'card'); c3.append(el('b', null, 'Sua nota'));
+    const st = el('div', 'stars'); const mine = S.meus[r.id] || 0;
+    for (let k = 1; k <= 5; k++) { const s = el('button', 'star' + (k <= mine ? ' on' : ''), '★'); s.type = 'button'; s.setAttribute('aria-label', k + (k === 1 ? ' estrela' : ' estrelas')); s.setAttribute('aria-pressed', String(k === mine)); s.addEventListener('click', () => votar(r.id, k === mine ? 0 : k)); st.append(s); }
+    const sx = stats(r.id); c3.append(st, el('p', 'sub', sx.n ? `Média dos fãs: ${fmt(sx.media)} de ${sx.n} ${sx.n === 1 ? 'voto' : 'votos'}` : 'Ninguém avaliou ainda.'));
+    colB.append(c3);
+    const fo = el('p', 'foot'); const u = safe(r.url);
+    if (u) { fo.append('Fonte: '); const a = el('a', null, r.fonte); a.href = u; a.target = '_blank'; a.rel = 'noopener'; fo.append(a); } else fo.textContent = 'Fonte: ' + r.fonte;
+    colA.append(fo);
+  }
+
+  function view() { const h = location.hash.replace('#', ''); if (h.startsWith('item-')) return ['detalhe', h.slice(5)]; return [['lista', 'calendario'].includes(h) ? h : 'descobrir', null]; }
+  function render() {
+    const [v, id] = view();
+    for (const s of document.querySelectorAll('.view')) s.hidden = s.id !== v;
+    for (const t of document.querySelectorAll('.tabbtn')) { if (t.dataset.v === v) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); }
+    const pend = S.itens.filter((r) => S.meusQ[r.id] && !S.priv[r.id]?.feito).length; const n = $('n-mine'); n.textContent = pend; n.hidden = !pend;
+    if (v === 'descobrir') vDescobrir(); else if (v === 'lista') vLista(); else if (v === 'calendario') vCal(); else vDet(id);
+  }
+  window.addEventListener('hashchange', () => {
+    const volta = S.pendY; S.pendY = null;
+    const foco = S.destaque;
+    if (!foco) window.scrollTo(0, 0);
+    render();
+    if (volta != null) requestAnimationFrame(() => window.scrollTo(0, volta));
+  });
+  $('voltar').addEventListener('click', () => { const v = S.voltar.pop(); if (v) { S.pendY = v[1]; location.hash = v[0]; } else location.hash = '#descobrir'; });
+  for (const b of document.querySelectorAll('#cats .chip')) b.addEventListener('click', () => { S.cat = b.dataset.cat || ''; for (const o of document.querySelectorAll('#cats .chip')) o.setAttribute('aria-pressed', String(o === b)); render(); });
+  for (const b of document.querySelectorAll('#cal-f .chip')) b.addEventListener('click', () => { S.calF = b.dataset.f; for (const o of document.querySelectorAll('#cal-f .chip')) o.setAttribute('aria-pressed', String(o === b)); render(); });
+  for (const t of document.querySelectorAll('.tabbtn')) t.addEventListener('click', () => { S.voltar = []; });
+
+  function aviso(t) { const m = $('msg'); m.textContent = t || ''; m.hidden = !t; }
+  function pedirLogin() { if (!S.sb) { aviso('As notas e listas ainda não estão ligadas neste site. Volte em breve.'); return; } $('loginbox').hidden = false; $('email').focus(); window.scrollTo(0, 0); }
+  const ERRO = 'Não foi salvo. Confira sua conexão e tente de novo.';
+
+  async function carregarPublico() {
+    if (!S.sb) return;
+    const [m, q, f] = await Promise.all([S.sb.from('media_notas').select('*'), S.sb.from('contagem_lista').select('*'), S.sb.from('resumo_fas').select('*')]);
+    if (!m.error) { const o = {}; for (const x of m.data) o[x.item_id] = { media: Number(x.media), n: Number(x.n) }; S.pub.medias = o; }
+    if (!q.error) { const o = {}; for (const x of q.data) o[x.item_id] = Number(x.n); S.pub.quero = o; }
+    if (!f.error && f.data[0]) S.pub.fas = Number(f.data[0].fas) || 0;
+    render();
+  }
+  async function carregarMeu() {
+    S.meus = {}; S.meusQ = {}; S.priv = {};
+    if (S.sb && S.user) {
+      const [n, l] = await Promise.all([S.sb.from('notas').select('item_id,nota').eq('user_id', S.user.id), S.sb.from('lista').select('item_id,feito,anotacao').eq('user_id', S.user.id)]);
+      if (!n.error) for (const x of n.data) S.meus[x.item_id] = x.nota;
+      if (!l.error) for (const x of l.data) { S.meusQ[x.item_id] = true; const p = {}; if (x.feito) p.feito = true; if (x.anotacao) p.nota = x.anotacao; if (Object.keys(p).length) S.priv[x.item_id] = p; }
+    }
+    render();
+  }
+
+  async function votar(id, n) {
+    if (!canWrite()) return pedirLogin();
+    const antes = { ...S.meus }; if (n) S.meus[id] = n; else delete S.meus[id]; render();
+    const q = n ? S.sb.from('notas').upsert({ user_id: S.user.id, item_id: id, nota: n }) : S.sb.from('notas').delete().eq('user_id', S.user.id).eq('item_id', id);
+    const { error } = await q; if (error) { S.meus = antes; aviso(ERRO); render(); return; }
+    aviso(''); carregarPublico();
+  }
+  async function querer(id, on, abrir) {
+    if (!canWrite()) return pedirLogin();
+    const antes = { ...S.meusQ }; if (on) S.meusQ[id] = true; else { delete S.meusQ[id]; delete S.priv[id]; }
+    if (on && abrir) { S.voltar.push([location.hash || '#descobrir', window.scrollY]); S.destaque = slug(id); location.hash = '#lista'; } else render();
+    const q = on ? S.sb.from('lista').upsert({ user_id: S.user.id, item_id: id }, { onConflict: 'user_id,item_id', ignoreDuplicates: true }) : S.sb.from('lista').delete().eq('user_id', S.user.id).eq('item_id', id);
+    const { error } = await q; if (error) { S.meusQ = antes; aviso(ERRO); render(); return; }
+    aviso(''); carregarPublico();
+  }
+  async function salvarPriv(id, mud) {
+    if (!canWrite()) return pedirLogin();
+    const antes = JSON.parse(JSON.stringify(S.priv)); const novo = { ...(S.priv[id] || {}), ...mud };
+    if (!novo.nota) delete novo.nota; if (!novo.feito) delete novo.feito;
+    if (Object.keys(novo).length) S.priv[id] = novo; else delete S.priv[id];
+    render();
+    const { error } = await S.sb.from('lista').update({ feito: !!novo.feito, anotacao: novo.nota || null }).eq('user_id', S.user.id).eq('item_id', id);
+    if (error) { S.priv = antes; aviso(ERRO); render(); } else aviso('');
+  }
+
+  function contaUI() {
+    const b = $('conta');
+    b.textContent = S.user ? 'Sair' : 'Entrar';
+    b.title = S.user ? (S.user.email || '') : '';
+    if (S.user) $('loginbox').hidden = true;
+  }
+  $('conta').addEventListener('click', async () => {
+    if (!S.sb) { aviso('As notas e listas ainda não estão ligadas neste site.'); return; }
+    if (S.user) { await S.sb.auth.signOut(); return; }
+    const box = $('loginbox'); box.hidden = !box.hidden; if (!box.hidden) $('email').focus();
+  });
+  $('loginform').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = $('email').value.trim(); if (!email || !S.sb) return;
+    $('loginmsg').textContent = 'Enviando…';
+    const { error } = await S.sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
+    $('loginmsg').textContent = error ? 'Não deu para enviar agora. Tente de novo em alguns minutos.' : 'Pronto. Abra o e-mail e toque no link para entrar.';
+  });
+
+  render();
+  fetch('dados.json').then((r) => r.json()).then((d) => {
+    S.itens = Array.isArray(d.itens) ? d.itens : [];
+    if (d.atualizado) { const [y, m, dd] = String(d.atualizado).split('-'); $('atualizado').textContent = `Lista atualizada em ${dd}/${m}/${y}, com nova varredura da imprensa toda semana. Os cartazes são ilustrações próprias.`; }
+    render();
+  }).catch(() => { $('todos').replaceChildren(el('p', 'empty', 'Não foi possível carregar a lista agora.')); });
+
+  (async () => {
+    const cfg = window.RADAR_CONFIG || {};
+    if (!window.supabase || !cfg.supabaseUrl || !cfg.supabaseKey) { contaUI(); return; }
+    S.sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey);
+    const { data } = await S.sb.auth.getSession();
+    S.user = data.session?.user || null; contaUI();
+    S.sb.auth.onAuthStateChange((_ev, sess) => { const u = sess?.user || null; if ((u && u.id) !== (S.user && S.user.id)) { S.user = u; contaUI(); carregarMeu(); } });
+    carregarPublico(); carregarMeu();
+  })();
+}
+</script>
+</body>
+</html>
